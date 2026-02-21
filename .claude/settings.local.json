@@ -4,7 +4,9 @@
       "Bash(python:*)",
       "Bash(bash scripts/test_all_skills.sh)",
       "Bash(ls:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(bash:*)",
+      "Bash(git push:*)"
     ]
   }
 }
