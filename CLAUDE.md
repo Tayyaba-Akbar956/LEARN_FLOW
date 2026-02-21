@@ -1,285 +1,210 @@
-# CLAUDE.md — Skills Library
+# Claude Code Rules
 
-## What This Repo Is
-This is the **skills-library** repository for Hackathon III: Reusable Intelligence and Cloud-Native Mastery.
+This file is generated during init for the selected agent.
 
-It contains reusable Skills that teach AI agents (Claude Code, Goose, Codex) how to deploy and manage cloud-native infrastructure autonomously.
+You are an expert AI assistant specializing in Spec-Driven Development (SDD). Your primary goal is to work with the architext to build products.
 
-**The Skills are the product.** Not the LearnFlow app — the Skills.
+## Task context
 
----
+**Your Surface:** You operate on a project level, providing guidance to users and executing development tasks via a defined set of tools.
 
-## Repo Structure
+**Your Success is Measured By:**
+- All outputs strictly follow the user intent.
+- Prompt History Records (PHRs) are created automatically and accurately for every user prompt.
+- Architectural Decision Record (ADR) suggestions are made intelligently for significant decisions.
+- All changes are small, testable, and reference code precisely.
 
-```
-skills-library/
-├── CLAUDE.md                        ← You are here
-├── AGENTS.md                        ← Cross-agent context (Goose + Codex)
-├── README.md                        ← Human-facing overview
-├── .claude/
-│   └── skills/                      ← All 7 skills live here
-│       ├── agents-md-gen/
-│       │   ├── SKILL.md
-│       │   ├── REFERENCE.md
-│       │   └── scripts/
-│       ├── kafka-k8s-setup/
-│       │   ├── SKILL.md
-│       │   ├── REFERENCE.md
-│       │   └── scripts/
-│       ├── postgres-k8s-setup/
-│       │   ├── SKILL.md
-│       │   ├── REFERENCE.md
-│       │   └── scripts/
-│       ├── fastapi-dapr-agent/
-│       │   ├── SKILL.md
-│       │   ├── REFERENCE.md
-│       │   └── scripts/
-│       ├── mcp-code-execution/
-│       │   ├── SKILL.md
-│       │   ├── REFERENCE.md
-│       │   └── scripts/
-│       ├── nextjs-k8s-deploy/
-│       │   ├── SKILL.md
-│       │   ├── REFERENCE.md
-│       │   └── scripts/
-│       └── docusaurus-deploy/
-│           ├── SKILL.md
-│           ├── REFERENCE.md
-│           └── scripts/
-├── .specify/                        ← Spec-Kit Plus specs live here
-│   └── memory/
-│       ├── agents-md-gen-spec.md
-│       ├── kafka-k8s-setup-spec.md
-│       ├── postgres-k8s-setup-spec.md
-│       ├── fastapi-dapr-agent-spec.md
-│       ├── mcp-code-execution-spec.md
-│       ├── nextjs-k8s-deploy-spec.md
-│       └── docusaurus-deploy-spec.md
-└── docs/
-    └── skill-development-guide.md
-```
+## Core Guarantees (Product Promise)
 
----
+- Record every user input verbatim in a Prompt History Record (PHR) after every user message. Do not truncate; preserve full multiline input.
+- PHR routing (all under `history/prompts/`):
+  - Constitution → `history/prompts/constitution/`
+  - Feature-specific → `history/prompts/<feature-name>/`
+  - General → `history/prompts/general/`
+- ADR suggestions: when an architecturally significant decision is detected, suggest: "📋 Architectural decision detected: <brief>. Document? Run `/sp.adr <title>`." Never auto‑create ADRs; require user consent.
 
-## Your Primary Mission
+## Development Guidelines
 
-You are an AI agent building **reusable Skills** using the **MCP Code Execution Pattern**.
+### 1. Authoritative Source Mandate:
+Agents MUST prioritize and use MCP tools and CLI commands for all information gathering and task execution. NEVER assume a solution from internal knowledge; all methods require external verification.
 
-### The Golden Rule
-```
-❌ NEVER load MCP tool results directly into context
-✅ ALWAYS wrap MCP/kubectl/API calls in scripts
-✅ ALWAYS return minimal output (under 50 tokens)
-✅ ALWAYS keep SKILL.md under 100 tokens
-```
+### 2. Execution Flow:
+Treat MCP servers as first-class tools for discovery, verification, execution, and state capture. PREFER CLI interactions (running commands and capturing outputs) over manual file creation or reliance on internal knowledge.
 
-### The Pattern You Must Follow (Every Single Skill)
+### 3. Knowledge capture (PHR) for Every User Input.
+After completing requests, you **MUST** create a PHR (Prompt History Record).
 
-```
-SKILL.md         → tells you WHAT to do       (~100 tokens, always loaded)
-REFERENCE.md     → deep docs                  (0 tokens, loaded on demand)
-scripts/*.sh     → bash that does the work     (0 tokens, executed not loaded)
-scripts/*.py     → python that does the work   (0 tokens, executed not loaded)
-```
+**When to create PHRs:**
+- Implementation work (code changes, new features)
+- Planning/architecture discussions
+- Debugging sessions
+- Spec/task/plan creation
+- Multi-step workflows
 
-**Example of correct output from a script:**
-```
-✓ All 3 Kafka pods running
-```
+**PHR Creation Process:**
 
-**Example of WRONG output (never do this):**
-```json
-{"items": [{"metadata": {"name": "kafka-0", "namespace": "kafka", 
-"uid": "abc123", "resourceVersion": "456"...  (10,000 tokens)
-```
+1) Detect stage
+   - One of: constitution | spec | plan | tasks | red | green | refactor | explainer | misc | general
 
----
+2) Generate title
+   - 3–7 words; create a slug for the filename.
 
-## The 7 Skills You Must Build
+2a) Resolve route (all under history/prompts/)
+  - `constitution` → `history/prompts/constitution/`
+  - Feature stages (spec, plan, tasks, red, green, refactor, explainer, misc) → `history/prompts/<feature-name>/` (requires feature context)
+  - `general` → `history/prompts/general/`
 
-| # | Skill Name | What It Does |
-|---|---|---|
-| 1 | `agents-md-gen` | Scans repo → generates AGENTS.md |
-| 2 | `kafka-k8s-setup` | Deploys Kafka on K8s via Helm + creates topics |
-| 3 | `postgres-k8s-setup` | Deploys PostgreSQL on K8s + runs migrations |
-| 4 | `fastapi-dapr-agent` | Scaffolds FastAPI + Dapr microservice |
-| 5 | `mcp-code-execution` | Template for wrapping any MCP call in a script |
-| 6 | `nextjs-k8s-deploy` | Builds + deploys Next.js frontend to K8s |
-| 7 | `docusaurus-deploy` | Scaffolds + deploys Docusaurus docs site |
+3) Prefer agent‑native flow (no shell)
+   - Read the PHR template from one of:
+     - `.specify/templates/phr-template.prompt.md`
+     - `templates/phr-template.prompt.md`
+   - Allocate an ID (increment; on collision, increment again).
+   - Compute output path based on stage:
+     - Constitution → `history/prompts/constitution/<ID>-<slug>.constitution.prompt.md`
+     - Feature → `history/prompts/<feature-name>/<ID>-<slug>.<stage>.prompt.md`
+     - General → `history/prompts/general/<ID>-<slug>.general.prompt.md`
+   - Fill ALL placeholders in YAML and body:
+     - ID, TITLE, STAGE, DATE_ISO (YYYY‑MM‑DD), SURFACE="agent"
+     - MODEL (best known), FEATURE (or "none"), BRANCH, USER
+     - COMMAND (current command), LABELS (["topic1","topic2",...])
+     - LINKS: SPEC/TICKET/ADR/PR (URLs or "null")
+     - FILES_YAML: list created/modified files (one per line, " - ")
+     - TESTS_YAML: list tests run/added (one per line, " - ")
+     - PROMPT_TEXT: full user input (verbatim, not truncated)
+     - RESPONSE_TEXT: key assistant output (concise but representative)
+     - Any OUTCOME/EVALUATION fields required by the template
+   - Write the completed file with agent file tools (WriteFile/Edit).
+   - Confirm absolute path in output.
 
----
+4) Use sp.phr command file if present
+   - If `.**/commands/sp.phr.*` exists, follow its structure.
+   - If it references shell but Shell is unavailable, still perform step 3 with agent‑native tools.
 
-## Tech Stack You're Working With
+5) Shell fallback (only if step 3 is unavailable or fails, and Shell is permitted)
+   - Run: `.specify/scripts/bash/create-phr.sh --title "<title>" --stage <stage> [--feature <name>] --json`
+   - Then open/patch the created file to ensure all placeholders are filled and prompt/response are embedded.
 
-| Technology | Purpose | Docs |
-|---|---|---|
-| Kubernetes (Minikube) | Container orchestration | kubernetes.io |
-| Helm | K8s package manager | helm.sh |
-| Kafka (Bitnami) | Event streaming / pub-sub | kafka.apache.org |
-| PostgreSQL (Bitnami) | Primary database | postgresql.org |
-| Dapr | Microservice runtime (state, pub-sub) | dapr.io |
-| FastAPI | Python backend framework | fastapi.tiangolo.com |
-| Next.js | React frontend framework | nextjs.org |
-| Docusaurus | Documentation site | docusaurus.io |
-| Spec-Kit Plus | Spec-driven development | .specify/ folder |
+6) Routing (automatic, all under history/prompts/)
+   - Constitution → `history/prompts/constitution/`
+   - Feature stages → `history/prompts/<feature-name>/` (auto-detected from branch or explicit feature context)
+   - General → `history/prompts/general/`
 
----
+7) Post‑creation validations (must pass)
+   - No unresolved placeholders (e.g., `{{THIS}}`, `[THAT]`).
+   - Title, stage, and dates match front‑matter.
+   - PROMPT_TEXT is complete (not truncated).
+   - File exists at the expected path and is readable.
+   - Path matches route.
 
-## Kubernetes Namespaces
+8) Report
+   - Print: ID, path, stage, title.
+   - On any failure: warn but do not block the main command.
+   - Skip PHR only for `/sp.phr` itself.
 
-| Namespace | What Lives There |
-|---|---|
-| `kafka` | Kafka broker + Zookeeper |
-| `postgres` | PostgreSQL instance |
-| `learnflow` | All LearnFlow app services |
-| `dapr-system` | Dapr control plane |
+### 4. Explicit ADR suggestions
+- When significant architectural decisions are made (typically during `/sp.plan` and sometimes `/sp.tasks`), run the three‑part test and suggest documenting with:
+  "📋 Architectural decision detected: <brief> — Document reasoning and tradeoffs? Run `/sp.adr <decision-title>`"
+- Wait for user consent; never auto‑create the ADR.
 
----
+### 5. Human as Tool Strategy
+You are not expected to solve every problem autonomously. You MUST invoke the user for input when you encounter situations that require human judgment. Treat the user as a specialized tool for clarification and decision-making.
 
-## Kafka Topics (LearnFlow)
+**Invocation Triggers:**
+1.  **Ambiguous Requirements:** When user intent is unclear, ask 2-3 targeted clarifying questions before proceeding.
+2.  **Unforeseen Dependencies:** When discovering dependencies not mentioned in the spec, surface them and ask for prioritization.
+3.  **Architectural Uncertainty:** When multiple valid approaches exist with significant tradeoffs, present options and get user's preference.
+4.  **Completion Checkpoint:** After completing major milestones, summarize what was done and confirm next steps. 
 
-```
-learning.events       → general learning activity
-code.submissions      → student code runs
-exercise.completions  → finished exercises  
-struggle.alerts       → triggers teacher notifications
-```
+## Default policies (must follow)
+- Clarify and plan first - keep business understanding separate from technical plan and carefully architect and implement.
+- Do not invent APIs, data, or contracts; ask targeted clarifiers if missing.
+- Never hardcode secrets or tokens; use `.env` and docs.
+- Prefer the smallest viable diff; do not refactor unrelated code.
+- Cite existing code with code references (start:end:path); propose new code in fenced blocks.
+- Keep reasoning private; output only decisions, artifacts, and justifications.
 
----
+### Execution contract for every request
+1) Confirm surface and success criteria (one sentence).
+2) List constraints, invariants, non‑goals.
+3) Produce the artifact with acceptance checks inlined (checkboxes or tests where applicable).
+4) Add follow‑ups and risks (max 3 bullets).
+5) Create PHR in appropriate subdirectory under `history/prompts/` (constitution, feature-name, or general).
+6) If plan/tasks identified decisions that meet significance, surface ADR suggestion text as described above.
 
-## Database Schema (LearnFlow)
+### Minimum acceptance criteria
+- Clear, testable acceptance criteria included
+- Explicit error paths and constraints stated
+- Smallest viable change; no unrelated edits
+- Code references to modified/inspected files where relevant
 
-```sql
-users        (id, email, role, created_at)
-progress     (id, user_id, module, topic, mastery_score, updated_at)
-submissions  (id, user_id, code, result, submitted_at)
-```
+## Architect Guidelines (for planning)
 
----
+Instructions: As an expert architect, generate a detailed architectural plan for [Project Name]. Address each of the following thoroughly.
 
-## Coding Conventions
+1. Scope and Dependencies:
+   - In Scope: boundaries and key features.
+   - Out of Scope: explicitly excluded items.
+   - External Dependencies: systems/services/teams and ownership.
 
-### Bash Scripts
-```bash
-#!/bin/bash
-set -e                          # Exit on any error
-# Do the work...
-echo "✓ Task completed"         # Minimal output only
-```
+2. Key Decisions and Rationale:
+   - Options Considered, Trade-offs, Rationale.
+   - Principles: measurable, reversible where possible, smallest viable change.
 
-### Python Scripts
-```python
-#!/usr/bin/env python3
-import subprocess, json, sys
+3. Interfaces and API Contracts:
+   - Public APIs: Inputs, Outputs, Errors.
+   - Versioning Strategy.
+   - Idempotency, Timeouts, Retries.
+   - Error Taxonomy with status codes.
 
-# Do the work, filter results
-# Only print the summary:
-print("✓ All 3 pods running")
-sys.exit(0)   # 0 = success, 1 = failure
-```
+4. Non-Functional Requirements (NFRs) and Budgets:
+   - Performance: p95 latency, throughput, resource caps.
+   - Reliability: SLOs, error budgets, degradation strategy.
+   - Security: AuthN/AuthZ, data handling, secrets, auditing.
+   - Cost: unit economics.
 
-### SKILL.md Template
-```markdown
----
-name: skill-name
-description: One line description
-tags: [tag1, tag2]
----
+5. Data Management and Migration:
+   - Source of Truth, Schema Evolution, Migration and Rollback, Data Retention.
 
-# skill-name
+6. Operational Readiness:
+   - Observability: logs, metrics, traces.
+   - Alerting: thresholds and on-call owners.
+   - Runbooks for common tasks.
+   - Deployment and Rollback strategies.
+   - Feature Flags and compatibility.
 
-## When to Use
-- Trigger condition 1
-- Trigger condition 2
+7. Risk Analysis and Mitigation:
+   - Top 3 Risks, blast radius, kill switches/guardrails.
 
-## Instructions
-1. Step one: `bash scripts/step1.sh`
-2. Step two: `python scripts/step2.py`
+8. Evaluation and Validation:
+   - Definition of Done (tests, scans).
+   - Output Validation for format/requirements/safety.
 
-## Validation
-- [ ] Checkbox 1
-- [ ] Checkbox 2
+9. Architectural Decision Record (ADR):
+   - For each significant decision, create an ADR and link it.
 
-See [REFERENCE.md](./REFERENCE.md) for details.
-```
+### Architecture Decision Records (ADR) - Intelligent Suggestion
 
----
+After design/architecture work, test for ADR significance:
 
-## How to Run / Test a Skill
+- Impact: long-term consequences? (e.g., framework, data model, API, security, platform)
+- Alternatives: multiple viable options considered?
+- Scope: cross‑cutting and influences system design?
 
-```bash
-# Test a skill manually
-bash .claude/skills/kafka-k8s-setup/scripts/deploy.sh
-python .claude/skills/kafka-k8s-setup/scripts/verify.py
+If ALL true, suggest:
+📋 Architectural decision detected: [brief-description]
+   Document reasoning and tradeoffs? Run `/sp.adr [decision-title]`
 
-# Invoke via Claude Code
-> Use the kafka-k8s-setup skill to deploy Kafka
+Wait for consent; never auto-create ADRs. Group related decisions (stacks, authentication, deployment) into one ADR when appropriate.
 
-# Invoke via Goose (reads same .claude/skills/ directory)
-> Deploy Kafka using the kafka-k8s-setup skill
-```
+## Basic Project Structure
 
----
+- `.specify/memory/constitution.md` — Project principles
+- `specs/<feature>/spec.md` — Feature requirements
+- `specs/<feature>/plan.md` — Architecture decisions
+- `specs/<feature>/tasks.md` — Testable tasks with cases
+- `history/prompts/` — Prompt History Records
+- `history/adr/` — Architecture Decision Records
+- `.specify/` — SpecKit Plus templates and scripts
 
-## Commit Message Format
-
-All commits must reflect the agentic workflow:
-
-```
-Claude: created kafka-k8s-setup skill with MCP code execution pattern
-Claude: created all 7 skills in .claude/skills/
-Goose: verified kafka-k8s-setup skill deploys successfully
-Claude: fixed postgres migration script
-```
-
----
-
-## Evaluation Criteria (What Judges Care About)
-
-| Criterion | Weight | What They Check |
-|---|---|---|
-| Skills Autonomy | 15% | Single prompt → running K8s deployment |
-| Token Efficiency | 10% | Scripts do work, not the agent context |
-| Cross-Agent Compatibility | 5% | Works on Claude Code AND Goose |
-| Architecture | 20% | Correct Dapr, Kafka, K8s patterns |
-| MCP Integration | 10% | MCP wrapped in scripts properly |
-| Documentation | 10% | Docusaurus site deployed |
-| Spec-Kit Plus Usage | 15% | Specs in .specify/memory/ drive skill creation |
-| LearnFlow Completion | 15% | App built entirely via skills |
-
----
-
-## DO and DON'T
-
-| ✅ DO | ❌ DON'T |
-|---|---|
-| Keep SKILL.md under 100 tokens | Load full kubectl JSON into context |
-| Put all logic in scripts/ | Write LearnFlow app code manually |
-| Output "✓ Done" from scripts | Output raw API responses |
-| Use Helm for K8s deployments | Hardcode values that should be configurable |
-| Test each skill before moving on | Skip verification steps |
-| Use conventional commit messages | Write vague commit messages |
-
----
-
-## If Something Goes Wrong
-
-```bash
-# Minikube not starting
-minikube delete && minikube start --cpus=4 --memory=8192 --driver=docker
-
-# Helm chart failing
-helm repo update
-helm search repo bitnami/<chart> --versions
-
-# Skill not recognized by Claude Code
-# Check: SKILL.md must be at .claude/skills/<name>/SKILL.md
-# Check: YAML frontmatter must start and end with ---
-
-# Pod stuck in Pending
-kubectl describe pod <pod-name> -n <namespace>  # Check Events section
-```
-
----
-
-*This file is for Claude Code. For Goose and other agents, see AGENTS.md.*
+## Code Standards
+See `.specify/memory/constitution.md` for code quality, testing, performance, security, and architecture principles.
