@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(bash scripts/test_all_skills.sh)",
+      "Bash(ls:*)",
+      "Bash(find:*)"
+    ]
+  }
+}
