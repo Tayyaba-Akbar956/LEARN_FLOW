@@ -5,6 +5,16 @@
 **Status**: Draft
 **Input**: User description: "Comprehensive specifications for all LearnFlow components focusing on human needs and emotional outcomes"
 
+## Clarifications
+
+### Session 2026-02-21
+
+- Q: How should students authenticate to access LearnFlow, and what privacy controls must they have? → A: Email/password with explicit session monitoring consent
+- Q: Which AI model provider(s) should LearnFlow use for tutor agents? → A: OpenAI Agent SDK with Groq open-source models
+- Q: How long should student learning data (progress, sessions, code history) be retained? → A: 1 year with auto-deletion after inactivity
+- Q: What observability approach should LearnFlow use for monitoring, logging, and debugging? → A: Structured logging with OpenTelemetry
+- Q: What resource limits should be enforced on student code execution in the sandbox? → A: 5 second timeout, 256MB memory, no network/filesystem
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Student Gets Unstuck Through Guided Conversation (Priority: P1)
@@ -100,54 +110,73 @@ A developer wants to deploy the LearnFlow platform. Instead of manually writing 
 
 ### Functional Requirements
 
+#### Authentication & Privacy
+
+- **FR-001**: System MUST authenticate students via email/password registration
+- **FR-002**: Registration MUST include an explicit consent checkbox for session monitoring (code, chat, struggle detection)
+- **FR-003**: Students MUST be able to view and revoke session monitoring consent at any time
+- **FR-004**: System MUST allow students to delete their account and all associated data
+- **FR-005**: System MUST retain student learning data (progress, sessions, code history) for 1 year from last activity
+- **FR-006**: System MUST automatically delete student data after 1 year of account inactivity
+- **FR-007**: System MUST notify students 30 days before auto-deletion with option to retain data by logging in
+
 #### Chat Interface (Triage + All Agents)
 
-- **FR-001**: System MUST route student questions to the appropriate specialized agent (concept explainer, debugger, exercise generator, etc.)
-- **FR-002**: System MUST maintain conversation context across agent handoffs so students don't repeat themselves
-- **FR-003**: Tutor agents MUST respond with guiding questions before providing direct answers
-- **FR-004**: System MUST detect when a student is asking for answers without attempting to learn and adjust tutoring strategy
-- **FR-005**: Chat interface MUST display clear indicators when switching between AI agents and human teachers
+- **FR-008**: System MUST route student questions to the appropriate specialized agent (concept explainer, debugger, exercise generator, etc.)
+- **FR-009**: System MUST maintain conversation context across agent handoffs so students don't repeat themselves
+- **FR-010**: Tutor agents MUST respond with guiding questions before providing direct answers
+- **FR-011**: System MUST detect when a student is asking for answers without attempting to learn and adjust tutoring strategy
+- **FR-012**: Chat interface MUST display clear indicators when switching between AI agents and human teachers
 
 #### Code Editor (Monaco + Sandbox)
 
-- **FR-006**: System MUST provide a code editor with Python syntax highlighting and error detection
-- **FR-007**: System MUST execute student code in an isolated sandbox environment that prevents system access
-- **FR-008**: Code execution MUST complete within 5 seconds or timeout with a clear message
-- **FR-009**: System MUST display execution results (stdout, stderr, return values) clearly in the interface
-- **FR-010**: Editor MUST preserve student code across sessions so work is never lost
-- **FR-011**: System MUST prevent execution of malicious code (infinite loops, file system access, network calls)
+- **FR-013**: System MUST provide a code editor with Python syntax highlighting and error detection
+- **FR-014**: System MUST execute student code in an isolated sandbox environment that prevents system access
+- **FR-015**: Code execution MUST complete within 5 seconds or timeout with a clear message
+- **FR-016**: System MUST display execution results (stdout, stderr, return values) clearly in the interface
+- **FR-017**: Editor MUST preserve student code across sessions so work is never lost
+- **FR-018**: System MUST prevent execution of malicious code (infinite loops, file system access, network calls)
+- **FR-019**: Sandbox MUST enforce resource limits: 5 second timeout, 256MB memory maximum, no network access, no filesystem access
 
 #### Exercise System
 
-- **FR-012**: System MUST generate exercises dynamically based on student's current skill level and recent topics
-- **FR-013**: Each exercise MUST include clear instructions, expected outcomes, and success criteria
-- **FR-014**: System MUST validate student solutions automatically and provide feedback
-- **FR-015**: Exercise difficulty MUST adapt based on student performance (success rate, time taken, hints requested)
-- **FR-016**: System MUST offer hints progressively - starting vague, becoming more specific with each request
+- **FR-020**: System MUST generate exercises dynamically based on student's current skill level and recent topics
+- **FR-021**: Each exercise MUST include clear instructions, expected outcomes, and success criteria
+- **FR-022**: System MUST validate student solutions automatically and provide feedback
+- **FR-023**: Exercise difficulty MUST adapt based on student performance (success rate, time taken, hints requested)
+- **FR-024**: System MUST offer hints progressively - starting vague, becoming more specific with each request
 
 #### Struggle Detection System
 
-- **FR-017**: System MUST track struggle indicators: repeated failures, time spent, help requests, error patterns
-- **FR-018**: System MUST distinguish between productive struggle (learning) and harmful struggle (frustration)
-- **FR-019**: System MUST escalate to human teacher when struggle exceeds thresholds (e.g., 5 failures in 20 minutes)
-- **FR-020**: Struggle detection MUST run in real-time without requiring manual student reporting
-- **FR-021**: System MUST log all struggle events for teacher review and system improvement
+- **FR-025**: System MUST track struggle indicators: repeated failures, time spent, help requests, error patterns
+- **FR-026**: System MUST distinguish between productive struggle (learning) and harmful struggle (frustration)
+- **FR-027**: System MUST escalate to human teacher when struggle exceeds thresholds (e.g., 5 failures in 20 minutes)
+- **FR-028**: Struggle detection MUST run in real-time without requiring manual student reporting
+- **FR-029**: System MUST log all struggle events for teacher review and system improvement
 
 #### Teacher Dashboard
 
-- **FR-022**: Dashboard MUST display real-time struggle alerts with student context (code, chat history, struggle indicators)
-- **FR-023**: Teachers MUST be able to view any student's current session (code, chat, progress) with student privacy consent
-- **FR-024**: Dashboard MUST allow teachers to send messages directly to students in their chat interface
-- **FR-025**: System MUST track teacher intervention outcomes to improve AI tutor escalation thresholds
-- **FR-026**: Dashboard MUST show aggregate metrics (students online, average struggle time, intervention rate)
+- **FR-030**: Dashboard MUST display real-time struggle alerts with student context (code, chat history, struggle indicators)
+- **FR-031**: Teachers MUST be able to view any student's current session (code, chat, progress) with student privacy consent
+- **FR-032**: Dashboard MUST allow teachers to send messages directly to students in their chat interface
+- **FR-033**: System MUST track teacher intervention outcomes to improve AI tutor escalation thresholds
+- **FR-034**: Dashboard MUST show aggregate metrics (students online, average struggle time, intervention rate)
 
 #### Skills Library
 
-- **FR-027**: Each skill MUST follow the MCP Code Execution pattern (scripts return <50 tokens)
-- **FR-028**: Skills MUST be executable by AI agents without human intervention
-- **FR-029**: All LearnFlow infrastructure MUST be deployable using skills (no manual deployment code)
-- **FR-030**: Each skill MUST include verification scripts that confirm successful deployment
-- **FR-031**: Skills MUST be reusable across projects, not LearnFlow-specific
+- **FR-035**: Each skill MUST follow the MCP Code Execution pattern (scripts return <50 tokens)
+- **FR-036**: Skills MUST be executable by AI agents without human intervention
+- **FR-037**: All LearnFlow infrastructure MUST be deployable using skills (no manual deployment code)
+- **FR-038**: Each skill MUST include verification scripts that confirm successful deployment
+- **FR-039**: Skills MUST be reusable across projects, not LearnFlow-specific
+
+#### Observability & Monitoring
+
+- **FR-040**: System MUST use OpenTelemetry for distributed tracing across all services
+- **FR-041**: All services MUST emit structured logs in JSON format with consistent field names
+- **FR-042**: System MUST trace complete user journeys (question → agent routing → response) with correlation IDs
+- **FR-043**: System MUST expose metrics for: response latency, struggle detection accuracy, exercise completion rates, teacher intervention frequency
+- **FR-044**: Logs MUST include context: student ID (anonymized), session ID, agent type, timestamp, event type
 
 ### Key Entities
 
@@ -207,7 +236,9 @@ A developer wants to deploy the LearnFlow platform. Instead of manually writing 
 - Dapr for microservice communication
 - Monaco Editor for code editing interface
 - Python sandbox environment (containerized execution)
-- AI model API access for tutor agents (Claude, GPT, or similar)
+- OpenAI Agent SDK for tutor agent orchestration
+- Groq API for open-source model inference (Llama, Mixtral, or similar)
+- OpenTelemetry for distributed tracing, metrics, and structured logging
 
 ## Risks
 
