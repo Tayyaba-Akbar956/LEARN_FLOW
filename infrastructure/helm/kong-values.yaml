@@ -1,0 +1,31 @@
+# Kong API Gateway Configuration for LearnFlow
+# Rate limiting for sandbox protection and API abuse prevention
+
+plugins:
+  - name: rate-limiting
+    config:
+      minute: 5
+      policy: local
+      fault_tolerant: true
+      hide_client_headers: false
+      limit_by: ip
+
+# Route-specific overrides
+routes:
+  - name: code-execution-route
+    service: code-execution-service
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 3
+          policy: local
+          limit_by: consumer # Stricter limit for code execution per user
+
+  - name: chat-api-route
+    service: chat-service
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 10
+          policy: local
+          limit_by: ip

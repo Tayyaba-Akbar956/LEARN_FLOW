@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: progress-agent
+  namespace: learnflow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: progress-agent
+  template:
+    metadata:
+      labels:
+        app: progress-agent
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "progress-agent"
+        dapr.io/app-port: "8000"
+    spec:
+      containers:
+      - name: progress-agent
+        image: progress-agent:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: progress-agent
+  namespace: learnflow
+spec:
+  selector:
+    app: progress-agent
+  ports:
+  - port: 80
+    targetPort: 8000
+  type: ClusterIP

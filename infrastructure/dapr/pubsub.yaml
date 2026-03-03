@@ -1,0 +1,26 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: pubsub
+  namespace: default
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+  - name: brokers
+    value: "kafka-0.kafka.kafka.svc.cluster.local:9092"
+  - name: consumerGroup
+    value: "learnflow"
+  - name: clientId
+    value: "learnflow"
+  - name: authType
+    value: "none"
+  - name: maxMessageBytes
+    value: "1024000"
+  - name: consumeRetryInterval
+    value: "200ms"
+scopes:
+- chat-service
+- code-service
+- exercise-service
+- teacher-service

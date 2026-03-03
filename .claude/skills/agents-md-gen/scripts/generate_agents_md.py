@@ -19,7 +19,7 @@ def generate_agents_md():
 
     # Run scan from repo root
     scan_script = os.path.join(skill_dir, 'scripts', 'scan_repo.py')
-    result = subprocess.run(['python', scan_script],
+    result = subprocess.run(['python3', scan_script],
                           capture_output=True, text=True, cwd=repo_root)
 
     if result.returncode != 0:

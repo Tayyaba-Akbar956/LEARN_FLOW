@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: debug-agent
+  namespace: learnflow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: debug-agent
+  template:
+    metadata:
+      labels:
+        app: debug-agent
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "debug-agent"
+        dapr.io/app-port: "8000"
+    spec:
+      containers:
+      - name: debug-agent
+        image: debug-agent:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: debug-agent
+  namespace: learnflow
+spec:
+  selector:
+    app: debug-agent
+  ports:
+  - port: 80
+    targetPort: 8000
+  type: ClusterIP

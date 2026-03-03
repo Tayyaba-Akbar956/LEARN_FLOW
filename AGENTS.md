@@ -5,12 +5,19 @@ This is the skills-library repository for Hackathon III: Reusable Intelligence a
 
 ## Tech Stack
 - Claude Skills
+- Spec-Kit Plus
 
 ## Project Structure
 ```
 .claude/
+.specify/
+backend/
+frontend/
+history/
+infrastructure/
 scripts/
 services/
+specs/
 ```
 
 ## Agent Instructions
